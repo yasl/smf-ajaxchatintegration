@@ -1,0 +1,62 @@
+[size=14pt][color=blue]Changelog:[/color][/size]
+
+[color=red]1.00[/color]
+Initial release
+[color=red]1.01[/color]
+spanish translation added
+[color=red]1.10[/color]
+button for defalut theme aded
+[color=red]1.11[/color]
+fixed a small spelling bug
+[color=red]1.22[/color]
+fix a bug in chat script
+shoutbox added
+[color=red]2.0[/color]
+January 30 2009:
+complete change in finding online users.
+added two place to show online users.
+[color=red]2.1[/color]
+February 2 2009:
+new design for shoutbox.
+Bold Italic Underline BB codes and smiles added.
+[color=red]2.2[/color]
+February 3 2009:
+chat access permission added.
+[color=red]2.3[/color]
+February 7 2009:
+shoutbox on all pages feature added.
+open chat in a new pop up window.
+a bug in wireless mode patched
+[color=red]2.5[/color]
+February 13 2009:
+compatibility with smf 2 RC1.
+a bug in chat access permission fixed.
+some changes to fix crashing in other themes.
+[color=red]3[/color]
+March 11 2009:
+New features:
+- Now install the chat too.
+- New chat version 0.8.2
+- Lots of code change in mod.
+- Restrict access to shoutbox to your desired groups.
+- Shoutbox doesn't shown to groups can't access it
+- Can integrate shout box and chat room.
+
+Bugfixes:
+- Fixed conflict between chat and shoutbox.
+- Fixed creating tons of error's in logs .
+[color=red]3.2[/color]
+June 13 2009:
+New features:
++ Chat moderate permission added.
++ Shoutbox view/shout/moderate permission added.
++ Improvements in coding for less manual edits in 3rd party themes.
+
+Bug fixes:
+- users in chat become moderator when they have calender post right.
+- some minor bug in smf 2 fixed.
+[color=red]3.2.1[/color]
+July 18 2009:
+Bug fixes:
+- Guest permission check in chat and shoutbox fix.
+- some minor bug in table creating part.

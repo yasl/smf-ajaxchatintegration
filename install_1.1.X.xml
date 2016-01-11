@@ -1,0 +1,378 @@
+<?xml version="1.0"?>
+<!DOCTYPE modification SYSTEM "http://www.simplemachines.org/xml/modification">
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	This is an example modification file for SMF packages.
+
+	ATTENTION: If you are trying to install this manually, you should try
+	the package manager.  If it will not work for you, please take a look
+	at the following for information on this format:
+		http://mods.simplemachines.org/docs/manual-install.php
+
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+<modification xmlns="http://www.simplemachines.org/xml/modification" xmlns:smf="http://www.simplemachines.org/">
+	<id>ShahriarGholami:AjaxChat_Integration</id>
+	<version>3.2.1</version>
+
+	<file name="$sourcedir/BoardIndex.php">
+		<operation>
+			<search position="after"><![CDATA[	// Track most online statistics?
+	if (!empty($modSettings['trackStats']))]]></search>
+			<add><![CDATA[	$context['num_users_online'] = count($context['users_online']) + $context['num_users_hidden'];
+
+	//users in chat
+	if (!WIRELESS){
+		$userIDs = chatOnlineUsers();
+		$context['chat_links'] = array();
+		if (count($userIDs) > 0){
+			$query = "SELECT mem.ID_MEMBER, mem.realName, mem.ID_GROUP, mg.onlineColor, mg.ID_GROUP
+			 FROM	{$db_prefix}members AS mem 
+			 LEFT JOIN {$db_prefix}membergroups AS mg ON 
+			 (mg.ID_GROUP = IF(mem.ID_GROUP = 0, mem.ID_POST_GROUP, mem.ID_GROUP))WHERE ";
+			foreach ($userIDs as $ID)
+				$query .= 'ID_MEMBER = '. $ID . ' OR ';
+			//remove the last OR
+			$query = substr($query, 0, strlen($query)-3);
+
+			$result = db_query($query, __FILE__, __LINE__);
+			while ($row = mysql_fetch_assoc($result))
+				{
+				$link = '<a href="' . $scripturl . '?action=profile;u=' . $row['ID_MEMBER'];
+				if($row['onlineColor'] != ""){
+					$link.= '" style="color: ' . $row['onlineColor'];
+				}
+				$link.= '">' . $row['realName'] . '</a>';
+	   		array_push($context['chat_links'], $link);
+				}
+			mysql_free_result($result);
+			}
+		//set the flag true for home page
+		$context['chat_isHome'] = true;
+		}
+]]></add>
+		</operation>
+	</file>
+	
+	<file name="$sourcedir/Load.php">	
+		<operation>
+			<search position="before"><![CDATA[			$context['template_layers'] = array('main');]]></search>
+			<add><![CDATA[
+		array_splice($context['template_layers'], 1, 0, 'shout');]]></add>
+		</operation>
+
+		<operation>
+			<search position="before"><![CDATA[		// Load each template.... and attempt to load its associated language file.
+		foreach ($templates as $template)
+		{
+			loadTemplate($template);
+			loadLanguage($template, '', false);
+		}]]></search>
+			<add><![CDATA[
+		loadTemplate('Shout');
+		loadLanguage('Shout');]]></add>
+		</operation>	
+
+		<operation>
+			<search position="end" />
+			<add><![CDATA[
+function getShoutBoxContent($mini = false){
+	global $scripturl, $modSettings;
+ 
+	// Get the URL to the chat directory:
+	if (!defined('AJAX_CHAT_URL')){
+		if (empty($modSettings['miniChat']))
+			define('AJAX_CHAT_URL', str_replace("index.php", "shoutBox/", $scripturl));
+		else
+			define('AJAX_CHAT_URL', str_replace("index.php", "chat/", $scripturl));	
+	}
+    
+	// Get the real path to the chat directory:
+	if (!defined('AJAX_CHAT_PATH')){
+		if (empty($modSettings['miniChat']))
+			define('AJAX_CHAT_PATH', dirname(dirname(__FILE__)) . '/shoutBox/');
+		else
+			define('AJAX_CHAT_PATH', dirname(dirname(__FILE__)) . '/chat/');
+	}
+    
+  // Validate the path to the chat:
+  if (@is_file(AJAX_CHAT_PATH . 'lib/classes.php')){
+		// Include Class libraries:
+		require_once(AJAX_CHAT_PATH.'lib/classes.php');
+ 
+		// Initialize the shoutbox:
+		$ajaxChat = new CustomAJAXChatShoutBox();
+ 
+		// Parse and return the shoutbox template content:
+		return $ajaxChat->getShoutBoxContent($mini);  
+  }
+	return null;
+}
+
+function chatOnlineUsers(){
+	global $db_prefix;
+	
+	$userIDs = array();
+	$result = db_query("SELECT userID
+		FROM ${db_prefix}ajaxchat_online	WHERE NOW() <= DATE_ADD(dateTime, interval 2 MINUTE)
+		", __FILE__, __LINE__);
+	while($row = mysql_fetch_assoc($result)) {
+		array_push($userIDs, $row['userID']);
+		}
+	mysql_free_result($result);
+	return array_unique($userIDs);
+}
+]]></add>
+		</operation>
+	</file>	
+	
+	<file name="$sourcedir/ManagePermissions.php">
+		<operation>
+			<search position="replace"><![CDATA[				'profile_upload_avatar' => false,
+				'profile_remote_avatar' => false,
+			)
+		),
+		'board' => array(]]></search>
+			<add><![CDATA[				'profile_upload_avatar' => false,
+				'profile_remote_avatar' => false,
+			),
+			'chat' => array(
+				'chat_access' => false,
+				'chat_mod' => false,
+				'shout_view' => false,
+				'shout_access' => false,
+				'shout_mod' => false,
+			)		
+		),
+		'board' => array(]]></add>
+		</operation>
+	</file>
+
+	<file name="$sourcedir/ModSettings.php">
+		<operation>
+			<search position="replace"><![CDATA[			array('text', 'default_personalText'),
+			array('int', 'max_signatureLength'),]]></search>
+			<add><![CDATA[			array('text', 'default_personalText'),
+			array('int', 'max_signatureLength'),
+			array('check', 'enableShoutBox'),
+			array('check', 'anyPageShoutBox'),
+			array('check', 'miniChat'),
+			array('check', 'chatPopUp'),
+			array('check', 'enableChatButtonNo'),
+			array('check', 'enableChatBelowPM'),]]></add>
+		</operation>
+	</file>
+	
+	<file name="$boarddir/SSI.php">
+		<operation>
+			<search position="end" />
+			<add><![CDATA[
+function ssi_chatOnline($output_method = 'echo')
+{
+	global $db_prefix, $scripturl, $txt;
+	
+	$users = array();
+	$userIDs = array();
+	$result = db_query("SELECT userID
+		FROM ${db_prefix}ajaxchat_online	WHERE NOW() <= DATE_ADD(dateTime, interval 2 MINUTE)
+		", __FILE__, __LINE__);
+	while($row = mysql_fetch_assoc($result)) {
+		array_push($userIDs, $row['userID']);
+		}
+	mysql_free_result($result);
+
+	$users['IDs'] = array_unique($userIDs);
+	$users['links'] = array();
+	if (count($users['IDs']) > 0){
+		$query = "SELECT mem.ID_MEMBER, mem.realName, mem.ID_GROUP, mg.onlineColor, mg.ID_GROUP
+		 FROM	{$db_prefix}members AS mem 
+		 LEFT JOIN {$db_prefix}membergroups AS mg ON 
+		 (mg.ID_GROUP = IF(mem.ID_GROUP = 0, mem.ID_POST_GROUP, mem.ID_GROUP))WHERE ";
+		foreach ($users['IDs'] as $ID)
+			$query .= 'ID_MEMBER = '. $ID . ' OR ';
+		//remove the last OR
+		$query = substr($query, 0, strlen($query)-3);
+
+		$result = db_query($query, __FILE__, __LINE__);
+		while ($row = mysql_fetch_assoc($result))
+			{
+			$link = '<a href="' . $scripturl . '?action=profile;u=' . $row['ID_MEMBER'];
+			if($row['onlineColor'] != ""){
+				$link.= '" style="color: ' . $row['onlineColor'];
+			}
+			$link.= '">' . $row['realName'] . '</a>';
+   		array_push($users['links'], $link);
+			}
+		mysql_free_result($result);
+	}
+	if ($output_method != 'echo')
+		return $users;
+	else{
+		if (count($users['links']) == 0 )
+  		echo $txt['chat_no_user'];
+		elseif (count($users['links']) == 1 )
+	  	echo '1' . $txt['chat_aUser']. ':<br />', implode($users['links']);
+		else
+  		echo count($users['links']). $txt['chat_users']. ':<br />', implode(', ', $users['links']);		
+		}
+}
+]]></add>
+		</operation>
+	</file>
+
+	<file name="$themedir/BoardIndex.template.php">
+		<operation>
+			<search position="before"><![CDATA[							', $txt[140], ':<br />', implode(', ', $context['list_users_online']);]]></search>
+			<add><![CDATA[							
+	// users in chat
+	if (isset($context['chat_links'])){
+		if (count($context['chat_links']) == 0 )
+  		echo '<br />' . $txt['chat_no_user'];
+		elseif (count($context['chat_links']) == 1 )
+	  	echo '<br />  1' . $txt['chat_aUser']. ':<br />', implode($context['chat_links']);
+		else
+  		echo '<br /> ' . count($context['chat_links']). $txt['chat_users']. ':<br />', implode(', ', $context['chat_links']);
+  }]]></add>
+		</operation>
+	</file>
+	
+	<file name="$themedir/index.template.php">
+		<operation>
+			<search position="replace"><![CDATA[function template_menu()
+{
+	global $context, $settings, $options, $scripturl, $txt;]]></search>
+			<add><![CDATA[function template_menu()
+{
+	global $context, $settings, $options, $scripturl, $txt, $modSettings;]]></add>
+		</operation>
+		
+		<operation>
+			<search position="replace"><![CDATA[			// But, let's always show minutes - Time wasted here: 0 minutes ;).
+			echo $context['user']['total_time_logged_in']['minutes'], $txt['totalTimeLogged4'], '<br />';
+		}
+		echo '				</span>';
+	}]]></search>
+			<add><![CDATA[			// But, let's always show minutes - Time wasted here: 0 minutes ;).
+			echo $context['user']['total_time_logged_in']['minutes'], $txt['totalTimeLogged4'], '<br />';
+		}
+		if (!empty($modSettings['enableChatBelowPM'])){
+			$count = count(chatOnlineUsers());
+			if ($count == 0 )
+				echo '<br />' . $txt['chat_no_user'];
+			elseif ($count == 1 )
+  			echo '<br />  1' . $txt['chat_aUser']. '.<br />';
+			else
+  			echo '<br /> ' . $count . $txt['chat_users']. '<br />';
+		}
+		echo '				</span>';
+	}]]></add>
+		</operation>
+		
+		<operation>
+			<search position="after"><![CDATA[	// Otherwise, they might want to [logout]...]]></search>
+			<add><![CDATA[
+	// the [chat] button
+	$chatPath = str_replace("index.php", "chat/index.php", $scripturl);
+	$num = (empty($modSettings['enableChatButtonNo'])) ? 0 : count(chatOnlineUsers());
+	echo $context['browser']['is_ie4'] ? '<td class="maintab_active_' . $first . '">&nbsp;</td>' : '', '
+		<td valign="top" class="maintab_back">
+			<a href="', $chatPath, '"', empty($modSettings['chatPopUp']) ? 'target="_blank"' : ' onclick="openWindow(this.href);this.blur();return false;"', '>', $txt['chat'], ($num > 0) ?  ('('.$num.')') : '' , '</a>
+		</td>';]]></add>
+		</operation>
+	</file>
+	
+	<file name="$languagedir/Help.english.php">		
+		<operation>
+			<search position="end" />
+			<add><![CDATA[
+//Begin AjaxChat Integration
+$helptxt['enableShoutBox'] = 'This enables the ajaxchat shoutbox on your index page.';
+$helptxt['enableChatButtonNo'] = 'This shows number of chating users on chat button.';
+$helptxt['enableChatBelowPM'] = 'This shows online chat users below total time logged in section.';
+$helptxt['anyPageShoutBox'] = 'If you enable this ShoutBox will shown in all your forum pages but if disabled ShoutBox will shown only in index page.';
+$helptxt['chatPopUp'] = 'If enabled when clicking on chat button chat will loads a new popup page.';
+$helptxt['miniChat'] = 'If enabled shoutBox and chat became same thing and users can chat in every page';
+//End AjaxChat Integration
+]]></add>
+		</operation>
+	</file>
+	
+	<file name="$languagedir/Modifications.english.php">		
+		<operation>
+			<search position="end" />
+			<add><![CDATA[
+//Begin AjaxChat Integration
+$txt['chat'] = 'Chat';
+$txt['shoutBox'] = 'ShoutBox';
+$txt['chat_aUser'] = ' user is in chat';
+$txt['chat_users'] = ' users are in chat:';
+$txt['chat_no_user'] = 'No user is in chat.';
+$txt['enableShoutBox'] = 'Enable the ShoutBox?';
+$txt['enableChatButtonNo'] = 'Enable online chat users numbering on chat button?';
+$txt['enableChatBelowPM'] = 'Show online users below total logged in time section?';
+$txt['anyPageShoutBox'] = 'Check for ShoutBox on any page or uncheck for only in index page:';
+$txt['chatPopUp'] = 'Chat in popup page?';
+$txt['miniChat'] = 'Integrate shout box and chat room?';
+$txt['permissionname_chat_access'] = 'Access to chat';
+$txt['permissionhelp_chat_access'] = 'Users can use the chat or can\'t.';
+$txt['permissionname_shout_access'] = 'Can shout';
+$txt['permissionhelp_shout_access'] = 'Give access to write in shout box.';
+$txt['permissionname_shout_view'] = 'View shoutBox';
+$txt['permissionhelp_shout_view'] = 'Give access to view the shoutBox';
+$txt['permissionname_shout_mod'] = 'Moderate shoutBox';
+$txt['permissionhelp_shout_mod'] = 'Give access to moderate the shoutBox.';
+$txt['permissionname_chat_mod'] = 'Moderate chat';
+$txt['permissionhelp_chat_mod'] = 'Give access to moderate the chat.';
+$txt['permissiongroup_chat'] = 'Chat';
+//End AjaxChat Integration
+]]></add>
+		</operation>
+	</file>
+	
+	<file name="$languagedir/Help.persian.php" error="skip">		
+		<operation>
+			<search position="end" />
+			<add><![CDATA[
+//Begin AjaxChat Integration
+$helptxt['enableShoutBox'] = 'این گزنیه یک شات باکس در صفحه اول سایت شما اضافه می کند.';
+$helptxt['enableChatButtonNo'] = 'این گزینه تعداد افراد موجود در چت را در کنار دکمه چت نمایش می دهد.';
+$helptxt['enableChatBelowPM'] = 'این گزنیه افراد آنلاین در چت را زیر بخش مدت زمان حضور در انجمن نمایش می دهد.';
+$helptxt['anyPageShoutBox'] = 'اگر این گزینه فعال باشد شات باکس در تمامی صفحات نمایش داده می شود در غیر این صورت فقط در اصفحه اول انجمن نمایش داده خواهد شد.';
+$helptxt['chatPopUp'] = 'اگر فعال باشد زمانی که بر روی دکمه چت کلیک می کندی چت در یک pupop لود خواهد شد.';
+$helptxt['miniChat'] = 'با فعال کردن این گزینه شات باکس به یک مینی چت تبدیل شده و هر دئ سیستم یک محتوا را به نمایش می گزارند.';
+//End AjaxChat Integration
+]]></add>
+		</operation>
+	</file>
+
+	<file name="$languagedir/Modifications.persian.php" error="skip">		
+		<operation>
+			<search position="end" />
+			<add><![CDATA[
+//Begin AjaxChat Integration
+$txt['chat'] = 'چت';
+$txt['shoutBox'] = 'شات باکس';
+$txt['chat_aUser'] = ' کاربر در چت هست';
+$txt['chat_users'] = ' کاربر در چت هستند:';
+$txt['chat_no_user'] = 'هیچ کاربری در چت نیست.';
+$txt['enableShoutBox'] = 'شات باکس فعال شود؟';
+$txt['enableChatButtonNo'] = 'شمارش افراد آنلاین در دکمه چت فهال شود؟';
+$txt['enableChatBelowPM'] = 'نمایش افراد آنلاین در چت زیر بخش مدت زمان حضور در انجمن؟';
+$txt['anyPageShoutBox'] = 'برای نمایش شات باکس در تمامی صفحات تیک بزنید و برای نمایش شات باکس فقط در صفحه اول تیک را بردارید:';
+$txt['chatPopUp'] = 'صفحه چت در یک پنجره popup لود شود؟';
+$txt['miniChat'] = 'یکی کردن شات باکس با چت؟';
+$txt['permissionname_chat_access'] = 'دسترسی به چت';
+$txt['permissionhelp_chat_access'] = 'با فعال کردن این گزینه کاربران این گروه توانایی استفاده از چت را خواهند داشت';
+$txt['permissionname_shout_access'] = 'نوشتن در شات باکس';
+$txt['permissionhelp_shout_access'] = 'با فعال کردن این گزینه کاربران این گروه توانایی نوشتن در شات باکس را خواهند داشت.';
+$txt['permissionname_shout_view'] = 'مشاهده شات باکس';
+$txt['permissionhelp_shout_view'] = 'با فعال کردن این گزینه کاربران این گروه توانایی مشاهده شات باکس را خواهند داشت.';
+$txt['permissionname_shout_mod'] = 'مدیریت شاتباکس';
+$txt['permissionhelp_shout_mod'] = 'با فعال کردن این گزینه کاربران این گروه توانایی مدیریت شات باکس را خواهند داشت.';
+$txt['permissionname_chat_mod'] = 'مدیریت چت';
+$txt['permissionhelp_chat_mod'] = 'با فعال کردن این گزینه کاربران این گروه توانایی مدیریت چت را خواهند داشت.';
+$txt['permissiongroup_chat'] = 'چت';
+//End AjaxChat Integration
+]]></add>
+		</operation>
+	</file>
+</modification>
