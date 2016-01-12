@@ -1,25 +1,15 @@
-[left]
-[center][b]By Shahriar Gholami[b][/center]
-This mod will install [url=https://blueimp.net/ajax/]AjaxChat[/url] on your smf.
+By Shahriar Gholami & yasl
 
-Tested on freshly installed smf 1.1.10/2.0 RC1.2
-[/left]
+This mod will integrate an existing install of [url=https://blueimp.net/ajax/]AjaxChat[/url] with SMF.
 
-[left][size=14pt][color=blue]Features:[/color][/size]
+AjaxChat must be installed under '$boarddir/chat/'.
+
+Tested on SMF 2.0.11.
+
+[b]Features:[/b]
 Adds a button to chat system in default theme.
-Access/Moderate permission.
-chat in a pop up page or a regular page.
-Shows the number of chating users in:
-    1. Online Users section.
-    2. Beside of chat button.
+Shows the number of chatting users:
+    1. In the Online Users section.
+    2. As part of the chat button.
     3. Below of total time logged in.
-    number 2 and 3 can disabled.
-
-adds a shoutbox.(you can disable it)
-    View/Shout/Moderate permission.
-    can set to only in index page or all pages.
-    compatible with your theme.
-    Bold Italic Underline bb codes and smiley.
-    collapsible.
-    can integrate shout box and chat room to work together and show same conversation.
-[/left]
+Optionally adds a collapsible "shoutbox", on either just the board index or all pages, that links to the chat system.

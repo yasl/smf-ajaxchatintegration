@@ -60,3 +60,13 @@ July 18 2009:
 Bug fixes:
 - Guest permission check in chat and shoutbox fix.
 - some minor bug in table creating part.
+
+[color=red]3.99.0[/color]
+January 2016:
+Complete overhaul and simplification.
+No longer provides the following functionality:
+- Creation and management of the AJAX Chat application (it is now necessary to
+upload and install AJAX Chat to '$boarddir/chat' yourself, and to manage its
+database tables).
+- Distinct shout box from full chat; "miniChat" mode is now the only mode.
+- Pop-up chat window.

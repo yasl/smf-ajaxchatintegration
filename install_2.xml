@@ -12,302 +12,187 @@
 
 <modification xmlns="http://www.simplemachines.org/xml/modification" xmlns:smf="http://www.simplemachines.org/">
 	<id>ShahriarGholami:AjaxChat_Integration</id>
-	<version>3.2.1</version>
+	<version>3.99.0</version>
 
 	<file name="$sourcedir/Admin.php">
 		<operation>
-			<search position="before"><![CDATA[						// Note the comma!! The setting with automatically appear with the first mod to be added.]]></search>
+			<search position="before"><![CDATA[
+						// Note the comma!! The setting with automatically appear with the first mod to be added.]]></search>
 			<add><![CDATA[
-						'chat' => array($txt['chat']),]]></add>
-		</operation>		
-		
-		<operation>
-			<search position="before"><![CDATA[		// Mod authors if you want to be "real freaking good" then add any setting pages for your mod BELOW this line!]]></search>
-			<add><![CDATA[
-		array('ModifyAjaxChatModSettings', 'area=modsettings;save;sa=chat'),]]></add>
+						// MOD: AJAX Chat
+						'chat' => array($txt['chat']),
+						// END MOD: AJAX Chat
+]]></add>
 		</operation>
-	</file>
-	
-	<file name="$sourcedir/BoardIndex.php">
-		<operation>
-			<search position="replace"><![CDATA[function BoardIndex()
-{
-	global $txt, $user_info, $sourcedir, $modSettings, $context, $settings, $scripturl;]]></search>
-			<add><![CDATA[function BoardIndex()
-{
-	global $txt, $user_info, $sourcedir, $modSettings, $context, $settings, $scripturl, $smcFunc;]]></add>
-		</operation>	
 
 		<operation>
-			<search position="before"><![CDATA[	$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']);]]></search>
+			<search position="before"><![CDATA[
+		// Mod authors if you want to be "real freaking good" then add any setting pages for your mod BELOW this line!]]></search>
 			<add><![CDATA[
-	//ajax chat start
-	$userIDs = chatOnlineUsers();
-	$context['chat_links'] = array();
-	if (count($userIDs) > 0){
-		if (count($userIDs) == 1){
-			$result = $smcFunc['db_query']('', '
-   			SELECT mem.ID_MEMBER, mem.real_name, mem.ID_GROUP, mg.online_color, mg.ID_GROUP
-			 		FROM	{db_prefix}members AS mem 
-			 		LEFT JOIN {db_prefix}membergroups AS mg ON 
-			 		(mg.ID_GROUP = IF(mem.ID_GROUP = 0, mem.ID_POST_GROUP, mem.ID_GROUP)) WHERE mem.ID_MEMBER = {int:the_id}' ,
-  	 		array(
-      		'the_id' => $userIDs[0],
-   				)
-  			);
-			}else{
-				$result = $smcFunc['db_query']('', '
-	   			SELECT mem.ID_MEMBER, mem.real_name, mem.ID_GROUP, mg.online_color, mg.ID_GROUP
-			 			FROM	{db_prefix}members AS mem 
-			 			LEFT JOIN {db_prefix}membergroups AS mg ON 
-			 			(mg.ID_GROUP = IF(mem.ID_GROUP = 0, mem.ID_POST_GROUP, mem.ID_GROUP)) WHERE mem.ID_MEMBER IN ({array_int:the_ids})',
-   				array(
-      			'the_ids' => $userIDs,
-  	 			)
-  			);				
-			}
-			while ($row =$smcFunc['db_fetch_assoc']($result))
-				{
-				$link = '<a href="' . $scripturl . '?action=profile;u=' . $row['ID_MEMBER'];
-				if($row['online_color'] != ""){
-					$link.= '" style="color: ' . $row['online_color'];
-				}
-				$link.= '">' . $row['real_name'] . '</a>';
-   			array_push($context['chat_links'], $link);
-				}
-			$smcFunc['db_free_result']($result);
-			}
-		//set the flag true for home page
-		$context['chat_isHome'] = true;
-		//end ajax chat]]></add>
-		</operation>
-	</file>
-	
-	<file name="$sourcedir/Load.php">	
-		<operation>
-			<search position="before"><![CDATA[		// Load each template...
-		foreach ($templates as $template)
-			loadTemplate($template);]]></search>
-			<add><![CDATA[
-		loadTemplate('Shout');
-		loadLanguage('Shout');]]></add>
-		</operation>
-		
-		<operation>
-			<search position="before"><![CDATA[			$context['template_layers'] = array('html', 'body');]]></search>
-			<add><![CDATA[
-		array_splice($context['template_layers'], 2, 0, 'shout');]]></add>
-		</operation>		
-		
-		<operation>
-			<search position="end" />
-			<add><![CDATA[
-function getShoutBoxContent($mini = false){
-	global $scripturl, $modSettings;
- 
-	// Get the URL to the chat directory:
-	if (!defined('AJAX_CHAT_URL')){
-		if (empty($modSettings['miniChat']))
-			define('AJAX_CHAT_URL', str_replace("index.php", "shoutBox/", $scripturl));
-		else
-			define('AJAX_CHAT_URL', str_replace("index.php", "chat/", $scripturl));	
-	}
-    
-	// Get the real path to the chat directory:
-	if (!defined('AJAX_CHAT_PATH')){
-		if (empty($modSettings['miniChat']))
-			define('AJAX_CHAT_PATH', dirname(dirname(__FILE__)) . '/shoutBox/');
-		else
-			define('AJAX_CHAT_PATH', dirname(dirname(__FILE__)) . '/chat/');
-	}
-    
-  // Validate the path to the chat:
-  if (@is_file(AJAX_CHAT_PATH . 'lib/classes.php')){
-		// Include Class libraries:
-		require_once(AJAX_CHAT_PATH.'lib/classes.php');
- 
-		// Initialize the shoutbox:
-		$ajaxChat = new CustomAJAXChatShoutBox();
- 
-		// Parse and return the shoutbox template content:
-		return $ajaxChat->getShoutBoxContent($mini);  
-  }
-	return null;
-}
-
-function chatOnlineUsers(){
-	global $smcFunc;
-	
-	$userIDs = array();
-	$result = $smcFunc['db_query']('', '
-		SELECT userID
-			FROM {db_prefix}ajaxchat_online	WHERE NOW() <= DATE_ADD(dateTime, interval 2 MINUTE)' ,
-  	array()
-	);
-	while($row = $smcFunc['db_fetch_assoc']($result)) {
-		array_push($userIDs, $row['userID']);
-		}
-	$smcFunc['db_free_result']($result);
-	return array_unique($userIDs);
-}
+		// MOD: AJAX Chat
+		array('ajaxchat_modifySettings', 'area=modsettings;save;sa=chat'),
+		// END MOD: AJAX Chat
 ]]></add>
 		</operation>
 	</file>
-	
+
+	<file name="$sourcedir/BoardIndex.php">
+		<operation>
+			<search position="before"><![CDATA[
+	$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']);]]></search>
+			<add><![CDATA[
+	// MOD: AJAX Chat
+	require_once($sourcedir . '/AJAXChatIntegration.php');
+	$context['chat_links'] = ajaxchat_getOnlineUserLinks();
+	$context['chat_isHome'] = true;
+	// END MOD: AJAX Chat
+]]></add>
+		</operation>
+	</file>
+
+	<file name="$sourcedir/Load.php">
+		<operation>
+			<search position="before"><![CDATA[
+		// ...and attempt to load their associated language files.
+		$required_files = implode('+', array_merge($templates, array('Modifications')));
+		loadLanguage($required_files, '', false);
+]]></search>
+			<add><![CDATA[
+
+		// MOD: AJAX Chat
+		// And load the Shout Box
+		loadTemplate('Shout');
+		loadLanguage('Shout');
+		// END MOD: AJAX Chat
+]]></add>
+		</operation>
+
+		<operation>
+			<search position="before"><![CDATA[
+		if (isset($settings['theme_layers']))
+			$context['template_layers'] = explode(',', $settings['theme_layers']);
+		else
+			$context['template_layers'] = array('html', 'body');
+]]></search>
+			<add><![CDATA[
+		// MOD: AJAX Chat - Shoutbox
+		array_splice($context['template_layers'], 2, 0, 'shout');
+		// END MOD: AJAX Chat
+]]></add>
+		</operation>
+
+		<operation>
+			<search position="end" />
+			<add><![CDATA[
+// MOD: AJAX Chat - import ajaxchat_getOnlineUsers() & ajaxchat_getShoutBoxContent()
+require_once($sourcedir . '/AJAXChatIntegration.php');
+// END MOD: AJAX Chat
+]]></add>
+		</operation>
+	</file>
+
 	<file name="$sourcedir/ManagePermissions.php">
 		<operation>
-			<search position="before"><![CDATA[			'karma_edit' => array(false, 'general', 'moderate_general'),]]></search>
+			<search position="before"><![CDATA[
+			'karma_edit' => array(false, 'general', 'moderate_general'),]]></search>
 			<add><![CDATA[
+			// MOD: AJAX Chat
 			'chat_access' => array(false, 'general', 'view_basic_info'),
 			'chat_mod' => array(false, 'general', 'view_basic_info'),
 			'shout_view' => array(false, 'general', 'view_basic_info'),
 			'shout_access' => array(false, 'general', 'view_basic_info'),
-			'shout_mod' => array(false, 'general', 'view_basic_info'),]]></add>
+			'shout_mod' => array(false, 'general', 'view_basic_info'),
+			// END MOD: AJAX Chat
+]]></add>
 		</operation>
 	</file>
 
 	<file name="$sourcedir/ManageSettings.php">
 		<operation>
-			<search position="before"><![CDATA[		// Mod authors, once again, if you have a whole section to add do it AFTER this line, and keep a comma at the end.]]></search>
+			<search position="before"><![CDATA[
+		// Mod authors, once again, if you have a whole section to add do it AFTER this line, and keep a comma at the end.]]></search>
 			<add><![CDATA[
-		'chat' => 'ModifyAjaxChatModSettings',]]></add>
+		// MOD: AJAX Chat
+		'chat' => 'ajaxchat_modifySettings',
+		// END MOD: AJAX Chat
+]]></add>
 		</operation>
-		
+
 		<operation>
-			<search position="before"><![CDATA[		'description' => $txt['modification_settings_desc'],
+			<search position="before"><![CDATA[
+		'description' => $txt['modification_settings_desc'],
 		'tabs' => array(
 			'general' => array(
 			),]]></search>
 			<add><![CDATA[
+			// MOD: AJAX Chat
 			'chat' => array(
 				'label' => $txt['chat'],
 				'description' => $txt['chat_settings_desc'],
-			),]]></add>
+			),
+			// END MOD: AJAX Chat
+]]></add>
 		</operation>
-		
+
 		<operation>
 			<search position="end" />
 			<add><![CDATA[
-			function ModifyAjaxChatModSettings($return_config = false)
-{
-	global $txt, $scripturl, $context, $settings, $sc, $modSettings;
-
-	$config_vars = array(
-		array('check', 'enableShoutBox'),
-		array('check', 'anyPageShoutBox'),
-		array('check', 'miniChat'),
-		array('check', 'chatPopUp'),
-		array('check', 'enableChatButtonNo'),
-		array('check', 'enableChatBelowPM'),
-	);
-
-	if ($return_config)
-		return $config_vars;
-
-	$context['post_url'] = $scripturl . '?action=admin;area=modsettings;save;sa=chat';
-	$context['settings_title'] = $txt['chat'];
-
-	// No removing this line you, dirty unwashed mod authors. :p
-	if (empty($config_vars))
-	{
-		$context['settings_save_dont_show'] = true;
-		$context['settings_message'] = '<div style="text-align: center">' . $txt['modification_no_misc_settings'] . '</div>';
-
-		return prepareDBSettingContext($config_vars);
-	}
-
-	// Saving?
-	if (isset($_GET['save']))
-	{
-		checkSession();
-
-		$save_vars = $config_vars;
-
-		saveDBSettings($save_vars);
-
-		redirectexit('action=admin;area=modsettings;sa=chat');
-	}
-
-	prepareDBSettingContext($config_vars);
-}]]></add>
+// MOD: AJAX Chat - import ajaxchat_modifySettings()
+require_once($sourcedir . '/AJAXChatIntegration.php');
+// END MOD: AJAX Chat
+]]></add>
 		</operation>
 	</file>
-	
+
 	<file name="$boarddir/SSI.php">
 		<operation>
 			<search position="end" />
 			<add><![CDATA[
+// MOD: AJAX Chat
 function ssi_chatOnline($output_method = 'echo')
 {
-	global $smcFunc, $scripturl, $txt;
-	
+	global $sourcedir, $txt;
+
 	$users = array();
-	$userIDs = chatOnlineUsers();
-	$users['links'] = array();
-	if (count($userIDs) > 0){
-		if (count($userIDs) == 1){
-			$result = $smcFunc['db_query']('', '
-   			SELECT mem.ID_MEMBER, mem.real_name, mem.ID_GROUP, mg.online_color, mg.ID_GROUP
-			 		FROM	{db_prefix}members AS mem 
-			 		LEFT JOIN {db_prefix}membergroups AS mg ON 
-			 		(mg.ID_GROUP = IF(mem.ID_GROUP = 0, mem.ID_POST_GROUP, mem.ID_GROUP)) WHERE mem.ID_MEMBER = {int:the_id}' ,
-  	 		array(
-      		'the_id' => $userIDs[0],
-   				)
-  			);
-			}else{
-				$result = $smcFunc['db_query']('', '
-	   			SELECT mem.ID_MEMBER, mem.real_name, mem.ID_GROUP, mg.online_color, mg.ID_GROUP
-			 			FROM	{db_prefix}members AS mem 
-			 			LEFT JOIN {db_prefix}membergroups AS mg ON 
-			 			(mg.ID_GROUP = IF(mem.ID_GROUP = 0, mem.ID_POST_GROUP, mem.ID_GROUP)) WHERE mem.ID_MEMBER IN ({array_int:the_ids})',
-   				array(
-      			'the_ids' => $userIDs,
-  	 			)
-  			);				
-			}
-			while ($row =$smcFunc['db_fetch_assoc']($result))
-				{
-				$link = '<a href="' . $scripturl . '?action=profile;u=' . $row['ID_MEMBER'];
-				if($row['online_color'] != ""){
-					$link.= '" style="color: ' . $row['online_color'];
-				}
-				$link.= '">' . $row['real_name'] . '</a>';
-   			array_push($users['links'], $link);
-				}
-			$smcFunc['db_free_result']($result);
-	}
-	if ($output_method != 'echo')
-		return $users;
-	else{
-		if (count($users['links']) == 0 )
-  		echo $txt['chat_no_user'];
-		elseif (count($users['links']) == 1 )
-	  	echo '1' . $txt['chat_aUser']. ':<br />', implode($users['links']);
+	require_once($sourcedir . '/AJAXChatIntegration.php');
+	$users['links'] = ajaxchat_getOnlineUserLinks();
+	if ($output_method == 'echo') {
+		echo ajaxchat_getOnlineUsersCountStringRepr();
+		if (count($users['links']) == 0)
+			echo $txt['chat_no_user'];
+		elseif (count($users['links']) == 1)
+			echo '1' . $txt['chat_aUser']. ':<br />', implode($users['links']);
 		else
-  		echo count($users['links']). $txt['chat_users']. ':<br />', implode(', ', $users['links']);		
-		}
+			echo count($users['links']). $txt['chat_users']. ':<br />', implode(', ', $users['links']);
+	}
+	return $users;
 }
+// END MOD: AJAX Chat
 ]]></add>
 		</operation>
 	</file>
-	
+
 	<file name="$sourcedir/Subs.php">
 		<operation>
-			<search position="before"><![CDATA[	$context['allow_pm'] = allowedTo('pm_read');]]></search>
+			<search position="before"><![CDATA[
+	$context['allow_pm'] = allowedTo('pm_read');
+]]></search>
 			<add><![CDATA[
-			
-	$num = empty($modSettings['enableChatButtonNo']) ? 0 : count(chatOnlineUsers());
+
+	// MOD: AJAX Chat
+	global $sourcedir;
+	require_once($sourcedir . '/AJAXChatIntegration.php');
+	$num = empty($modSettings['enableChatButtonNo']) ? 0 : count(ajaxchat_getOnlineUsers());
 	$chatButton = 'Chat';
 	$chatButton .= ($num > 0) ?  ('('.$num.')') : '';
 	$chatLink = str_replace("index.php", "chat/index.php", $scripturl);
-	if (!empty($modSettings['chatPopUp']))
-		$chatLink .= '" onclick="openWindow(this.href);this.blur();return false;';
+	// END MOD: AJAX Chat
 ]]></add>
-		</operation>	
-	
+		</operation>
+
 		<operation>
-			<search position="before"><![CDATA[					'mlist_search' => array(
+			<search position="before"><![CDATA[
+					'mlist_search' => array(
 						'title' => $txt['mlist_search'],
 						'href' => $scripturl . '?action=mlist;sa=search',
 						'show' => true,
@@ -316,91 +201,77 @@ function ssi_chatOnline($output_method = 'echo')
 				),
 			),]]></search>
 			<add><![CDATA[
+			// MOD: AJAX Chat
 			'chat' => array(
-			'title' => $chatButton,
-			'href' => $chatLink,
-			'show' => true,
-			'sub_buttons' => array(
+				'title' => $chatButton,
+				'href' => $chatLink,
+				'show' => true,
+				'sub_buttons' => array(
+				),
 			),
-		),]]></add>
-		</operation>
-	</file>
-	
-	<file name="$themedir/BoardIndex.template.php">
-		<operation>
-			<search position="after"><![CDATA[	echo '
-			</p>
-			<p class="last smalltext">]]></search>
-			<add><![CDATA[	// users in chat
-	if (isset($context['chat_links'])){
-		if (count($context['chat_links']) == 0 )
-  		echo '<br />' . $txt['chat_no_user'];
-		elseif (count($context['chat_links']) == 1 )
-  		echo '<br />  1' . $txt['chat_aUser']. ':<br />', implode($context['chat_links']);
-		else
-  		echo '<br /> ' . count($context['chat_links']). $txt['chat_users']. ':<br />', implode(', ', $context['chat_links']);
-  }
+			// END MOD: AJAX Chat
 ]]></add>
 		</operation>
 	</file>
-	
+
+	<file name="$themedir/BoardIndex.template.php">
+		<operation>
+			<search position="after"><![CDATA[
+	echo '
+			</p>
+			<p class="last smalltext">
+]]></search>
+			<add><![CDATA[
+	// MOD: AJAX Chat - show users in chat
+	if (isset($context['chat_links'])) {
+		if (count($context['chat_links']) == 0)
+			echo '<br />' . $txt['chat_no_user'];
+		elseif (count($context['chat_links']) == 1)
+			echo '<br />  1' . $txt['chat_aUser']. ':<br />', implode($context['chat_links']);
+		else
+			echo '<br /> ' . count($context['chat_links']). $txt['chat_users']. ':<br />', implode(', ', $context['chat_links']);
+	}
+	// END MOD: AJAX Chat
+]]></add>
+		</operation>
+	</file>
+
 	<file name="$themedir/index.template.php">
 		<operation>
-			<search position="replace"><![CDATA[function template_menu()
-{
-	global $context, $settings, $options, $scripturl, $txt;]]></search>
-			<add><![CDATA[function template_menu()
-{
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;]]></add>
-		</operation>
-		
-		<operation>
-			<search position="after"><![CDATA[			echo '
+			<search position="after"><![CDATA[
+		echo '
 					<li>', $context['current_time'], '</li>
 				</ul>';]]></search>
 			<add><![CDATA[
-		if (!empty($modSettings['enableChatBelowPM'])){
-			$count = count(chatOnlineUsers());
-			if ($count == 0 )
+		// MOD: AJAX Chat
+		global $modSettings, sourcedir;
+		require_once($sourcedir . '/AJAXChatIntegration.php');
+		if (!empty($modSettings['enableChatBelowPM'])) {
+			$count = count(ajaxchat_getOnlineUsers());
+			if ($count == 0)
 				echo '<li>' . $txt['chat_no_user'] . '</li>';
-			elseif ($count == 1 )
-  			echo '<li>1' . $txt['chat_aUser'] . '</li>';
+			elseif ($count == 1)
+				echo '<li>1' . $txt['chat_aUser'] . '</li>';
 			else
-  			echo '<li> ' . $count . $txt['chat_users'] . '.</li>';
+				echo '<li> ' . $count . $txt['chat_users'] . '.</li>';
 		}
+		// END MOD: AJAX Chat
 ]]></add>
 		</operation>
-	</file>		
-	
-	<file name="$languagedir/Help.english.php">		
+	</file>
+
+	<file name="$languagedir/Help.english.php">
 		<operation>
 			<search position="end" />
 			<add><![CDATA[
-//Begin AjaxChat Integration
+// MOD: AJAX Chat
 $helptxt['enableShoutBox'] = 'This enables the ajaxchat shoutbox on your index page.';
 $helptxt['enableChatButtonNo'] = 'This shows number of chating users on chat button.';
 $helptxt['enableChatBelowPM'] = 'This shows online chat users below total time logged in section.';
 $helptxt['anyPageShoutBox'] = 'If you enable this ShoutBox will shown in all your forum pages but if disabled ShoutBox will shown only in index page.';
-$helptxt['chatPopUp'] = 'If enabled when clicking on chat button chat will loads a new popup page.';
-$helptxt['miniChat'] = 'If enabled shoutBox and chat became same thing and users can chat in every page';
-//End AjaxChat Integration
+// END MOD: AJAX Chat
 ]]></add>
 		</operation>
 	</file>
-	
-	<file name="$languagedir/Help.persian.php" error="skip">		
-		<operation>
-			<search position="end" />
-			<add><![CDATA[
-//Begin AjaxChat Integration
-$helptxt['enableShoutBox'] = 'این گزنیه یک شات باکس در صفحه اول سایت شما اضافه می کند.';
-$helptxt['enableChatButtonNo'] = 'این گزینه تعداد افراد موجود در چت را در کنار دکمه چت نمایش می دهد.';
-$helptxt['enableChatBelowPM'] = 'این گزنیه افراد آنلاین در چت را زیر بخش مدت زمان حضور در انجمن نمایش می دهد.';
-$helptxt['anyPageShoutBox'] = 'اگر این گزینه فعال باشد شات باکس در تمامی صفحات نمایش داده می شود در غیر این صورت فقط در اصفحه اول انجمن نمایش داده خواهد شد.';
-$helptxt['chatPopUp'] = 'اگر فعال باشد زمانی که بر روی دکمه چت کلیک می کندی چت در یک pupop لود خواهد شد.';
-$helptxt['miniChat'] = 'با فعال کردن این گزینه شات باکس به یک مینی چت تبدیل شده و هر دئ سیستم یک محتوا را به نمایش می گزارند.';
-//End AjaxChat Integration
-]]></add>
-		</operation>
-	</file>
+
 </modification>
