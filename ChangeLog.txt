@@ -74,5 +74,8 @@ database tables).
 
 [color=red]3.99.1[/color]
 January 2016:
+New features:
++ Only show chat button and user listing to logged-in users.
+
 Bug fixes:
 - Move rollup icon to right.

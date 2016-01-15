@@ -11,4 +11,4 @@ Adds a button to chat system in default theme.
 Shows the number of chatting users:
     1. In the Online Users section.
     2. As part of the chat button.
-Optionally adds a collapsible "shoutbox", on either just the board index or all pages, that links to the chat system.
+Optionally adds a collapsible "Chat Preview", on either just the board index or all pages, that links to the chat system.
