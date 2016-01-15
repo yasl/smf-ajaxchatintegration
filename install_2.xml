@@ -205,7 +205,7 @@ function ssi_chatOnline($output_method = 'echo')
 			'chat' => array(
 				'title' => $chatButton,
 				'href' => $chatLink,
-				'show' => true,
+				'show' => allowedTo('chat_access'),
 				'sub_buttons' => array(
 				),
 			),
@@ -223,7 +223,7 @@ function ssi_chatOnline($output_method = 'echo')
 ]]></search>
 			<add><![CDATA[
 	// MOD: AJAX Chat - show users in chat
-	if (isset($context['chat_links'])) {
+	if (isset($context['chat_links']) && $context['user']['is_logged']) {
 		if (count($context['chat_links']) == 0)
 			echo '<br />' . $txt['chat_no_user'];
 		elseif (count($context['chat_links']) == 1)
