@@ -1,5 +1,9 @@
 <?php
 
+if (!defined('SMF'))
+	die('Hacking attempt...');
+
+
 function ajaxchat_getOnlineUsers()
 {
 	global $smcFunc;
