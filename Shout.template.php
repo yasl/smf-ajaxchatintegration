@@ -41,10 +41,18 @@ Sebastian Tschan
 *******************************************************************************/
 		if (!empty($modSettings['anyPageShoutBox']) || isset($context['chat_isHome'])) {
 			echo'
-			<h3 class="catbg" class="catbg centertext"><span class="left"></span>
-				<span class="floatleft"><a rel="nofollow" href="#" onclick="ajax_shoutBox_collapse(!sb_current_header)"><img id="ajax_shoutbox_collapse" src="', $settings['images_url'], empty($options['sb_collapsed']) ? '/collapse.gif' : '/expand.gif','" alt="*" style="margin-right: 5px;padding-top:7px"  /></span></a>', $txt['shoutBox'], '
-				<span class="floatright"><font size="1"><a href="https://blueimp.net/ajax/">AJAX Chat &copy; blueimp.net</a></font>
-			</h3>
+			<div class="cat_bar">
+				<h3 class="catbg" class="catbg centertext">
+					<a rel="nofollow" href="#" onclick="ajax_shoutBox_collapse(!sb_current_header)">', $txt['shoutBox'], '</a>
+					<span class="floatright">
+						<font size="1"><a href="https://blueimp.net/ajax/">AJAX Chat &copy; blueimp.net</a></font>
+						<a rel="nofollow" href="#" onclick="ajax_shoutBox_collapse(!sb_current_header)">
+							<img id="ajax_shoutbox_collapse" style="margin-right: 5px;padding:7px 0 0 5px"
+								src="', $settings['images_url'], empty($options['sb_collapsed']) ? '/collapse.gif' : '/expand.gif','" alt="*" />
+						</a>
+					</span>
+				</h3>
+			</div>
 			<div id="ShoutBox"', empty($options['sb_collapsed']) ? '' : ' style="display: none;"', '>
 			<span class="upperframe" style="height:18px;"><span>&nbsp;</span></span>
 			<div class="roundframe"><div style="margin:-5px;">

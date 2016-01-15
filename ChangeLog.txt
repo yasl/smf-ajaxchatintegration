@@ -71,3 +71,8 @@ database tables).
 - Distinct shout box from full chat; "miniChat" mode is now the only mode.
 - Pop-up chat window.
 - Listing # chat users under logged in time
+
+[color=red]3.99.1[/color]
+January 2016:
+Bug fixes:
+- Move rollup icon to right.
