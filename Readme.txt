@@ -11,5 +11,4 @@ Adds a button to chat system in default theme.
 Shows the number of chatting users:
     1. In the Online Users section.
     2. As part of the chat button.
-    3. Below of total time logged in.
 Optionally adds a collapsible "shoutbox", on either just the board index or all pages, that links to the chat system.

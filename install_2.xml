@@ -236,30 +236,6 @@ function ssi_chatOnline($output_method = 'echo')
 		</operation>
 	</file>
 
-	<file name="$themedir/index.template.php">
-		<operation>
-			<search position="after"><![CDATA[
-		echo '
-					<li>', $context['current_time'], '</li>
-				</ul>';]]></search>
-			<add><![CDATA[
-		// MOD: AJAX Chat
-		global $modSettings, sourcedir;
-		require_once($sourcedir . '/AJAXChatIntegration.php');
-		if (!empty($modSettings['enableChatBelowPM'])) {
-			$count = count(ajaxchat_getOnlineUsers());
-			if ($count == 0)
-				echo '<li>' . $txt['chat_no_user'] . '</li>';
-			elseif ($count == 1)
-				echo '<li>1' . $txt['chat_aUser'] . '</li>';
-			else
-				echo '<li> ' . $count . $txt['chat_users'] . '.</li>';
-		}
-		// END MOD: AJAX Chat
-]]></add>
-		</operation>
-	</file>
-
 	<file name="$languagedir/Help.english.php">
 		<operation>
 			<search position="end" />
@@ -267,7 +243,6 @@ function ssi_chatOnline($output_method = 'echo')
 // MOD: AJAX Chat
 $helptxt['enableShoutBox'] = 'This enables the ajaxchat shoutbox on your index page.';
 $helptxt['enableChatButtonNo'] = 'This shows number of chating users on chat button.';
-$helptxt['enableChatBelowPM'] = 'This shows online chat users below total time logged in section.';
 $helptxt['anyPageShoutBox'] = 'If you enable this ShoutBox will shown in all your forum pages but if disabled ShoutBox will shown only in index page.';
 // END MOD: AJAX Chat
 ]]></add>

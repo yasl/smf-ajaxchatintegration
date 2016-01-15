@@ -61,7 +61,6 @@ function ajaxchat_modifySettings($return_config = false)
 		array('check', 'enableShoutBox'),
 		array('check', 'anyPageShoutBox'),
 		array('check', 'enableChatButtonNo'),
-		array('check', 'enableChatBelowPM'),
 	);
 
 	if ($return_config)

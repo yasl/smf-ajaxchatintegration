@@ -6,7 +6,6 @@ $txt['chat_users'] = ' users are in chat:';
 $txt['chat_no_user'] = 'No user is in chat.';
 $txt['enableShoutBox'] = 'Enable the ShoutBox?';
 $txt['enableChatButtonNo'] = 'Enable online chat users numbering on chat button?';
-$txt['enableChatBelowPM'] = 'Show online users below total logged in time section?';
 $txt['anyPageShoutBox'] = 'check for ShoutBox on any page or uncheck for only in index page:';
 $txt['permissionname_chat_access'] = 'Access to chat';
 $txt['permissionhelp_chat_access'] = 'Users can use the chat or can\'t.';

@@ -70,3 +70,4 @@ upload and install AJAX Chat to '$boarddir/chat' yourself, and to manage its
 database tables).
 - Distinct shout box from full chat; "miniChat" mode is now the only mode.
 - Pop-up chat window.
+- Listing # chat users under logged in time
