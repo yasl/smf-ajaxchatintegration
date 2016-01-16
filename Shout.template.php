@@ -57,9 +57,14 @@ Sebastian Tschan
 			</div>
 			<div id="ShoutBox"', empty($options['sb_collapsed']) ? '' : ' style="display: none;"', '>
 			<span class="upperframe" style="height:18px;"><span>&nbsp;</span></span>
-			<div class="roundframe"><div style="margin:-5px;">
+			<div class="roundframe"><div style="margin:-5px;"><div id="ajaxChatContent">
 			', ajaxchat_getShoutBoxContent() ,'
-			</div></div>
+			<div id="ajaxChatCopyright" style="position: relative;">
+				<a href="' . AJAX_CHAT_URL . '"><button type="button" class="chatlinkbutton">Join Chat</button></a>
+				<a href="' . AJAX_CHAT_URL . '../index.php?topic=871.0"><button type="button" class="chathelpbutton">Chat Help</button></a>
+				<p>', call_user_func($context['chat_links_txt_fn'], $context['chat_links'], ': '), '</p>
+			</div>
+			</div></div></div>
 			<span class="lowerframe"><span>&nbsp;</span></span>
 			</div><br class="clear" />';
 		}

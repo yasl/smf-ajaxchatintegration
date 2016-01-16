@@ -1,7 +1,7 @@
 <?php
 $txt['chat'] = 'Chat';
 $txt['shoutBox'] = 'Chat Preview';
-$txt['chat_aUser'] = ' user is in chat.';
+$txt['chat_aUser'] = ' user is in chat';
 $txt['chat_users'] = ' users are in chat';
 $txt['chat_no_user'] = 'No user is in chat.';
 $txt['enableShoutBox'] = 'Enable the Chat Preview Box?';

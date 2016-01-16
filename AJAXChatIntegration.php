@@ -57,6 +57,19 @@ function ajaxchat_getOnlineUserLinks($userIDs = null)
 	return $user_links;
 }
 
+function ajaxchat_getOnlineUserTxt($user_links, $join = ': ')
+{
+	global $txt;
+
+	$n_users = count($user_links);
+	if ($n_users == 0)
+		return $txt['chat_no_user'];
+	elseif ($n_users == 1)
+		return '1' . $txt['chat_aUser'] . $join . implode($user_links);
+	else
+		return $n_users . $txt['chat_users']. $join . implode(', ', $user_links);
+}
+
 function ajaxchat_modifySettings($return_config = false)
 {
 	global $txt, $scripturl, $context, $settings, $sc, $modSettings;
@@ -92,7 +105,7 @@ function ajaxchat_modifySettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
-function ajaxchat_getShoutBoxContent($mini = false)
+function ajaxchat_getShoutBoxContent()
 {
 	global $scripturl, $modSettings;
 
@@ -113,7 +126,7 @@ function ajaxchat_getShoutBoxContent($mini = false)
 		$ajaxChat = new CustomAJAXChatShoutBox();
 
 		// Parse and return the shoutbox template content:
-		return $ajaxChat->getShoutBoxContent($mini);
+		return $ajaxChat->getShoutBoxContent(false);
 	}
 	return null;
 }

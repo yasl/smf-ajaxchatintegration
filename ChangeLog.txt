@@ -83,4 +83,9 @@ Bug fixes:
 [color=red]3.99.2[/color]
 January 2016:
 Bug fixes:
-- Fix alignment of rollup/collapse button
+- Fix alignment of rollup/collapse button.
+
+[color=red]4.0.0[/color]
+January 2016:
+New features:
++ List online users directly under the Chat Preview.

@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE modification SYSTEM "http://www.simplemachines.org/xml/modification">
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	This is an example modification file for SMF packages.
 
 	ATTENTION: If you are trying to install this manually, you should try
 	the package manager.  If it will not work for you, please take a look
@@ -12,7 +11,7 @@
 
 <modification xmlns="http://www.simplemachines.org/xml/modification" xmlns:smf="http://www.simplemachines.org/">
 	<id>ShahriarGholami:AjaxChat_Integration</id>
-	<version>3.99.2</version>
+	<version>4.0.0</version>
 
 	<file name="$sourcedir/Admin.php">
 		<operation>
@@ -43,7 +42,6 @@
 			<add><![CDATA[
 	// MOD: AJAX Chat
 	require_once($sourcedir . '/AJAXChatIntegration.php');
-	$context['chat_links'] = ajaxchat_getOnlineUserLinks();
 	$context['chat_isHome'] = true;
 	// END MOD: AJAX Chat
 ]]></add>
@@ -61,6 +59,8 @@
 
 		// MOD: AJAX Chat
 		// And load the Shout Box
+		$context['chat_links'] = ajaxchat_getOnlineUserLinks();
+		$context['chat_links_txt_fn'] = 'ajaxchat_getOnlineUserTxt';
 		loadTemplate('Shout');
 		loadLanguage('Shout');
 		// END MOD: AJAX Chat
@@ -144,34 +144,6 @@ require_once($sourcedir . '/AJAXChatIntegration.php');
 		</operation>
 	</file>
 
-	<file name="$boarddir/SSI.php">
-		<operation>
-			<search position="end" />
-			<add><![CDATA[
-// MOD: AJAX Chat
-function ssi_chatOnline($output_method = 'echo')
-{
-	global $sourcedir, $txt;
-
-	$users = array();
-	require_once($sourcedir . '/AJAXChatIntegration.php');
-	$users['links'] = ajaxchat_getOnlineUserLinks();
-	if ($output_method == 'echo') {
-		echo ajaxchat_getOnlineUsersCountStringRepr();
-		if (count($users['links']) == 0)
-			echo $txt['chat_no_user'];
-		elseif (count($users['links']) == 1)
-			echo '1' . $txt['chat_aUser']. ':<br />', implode($users['links']);
-		else
-			echo count($users['links']). $txt['chat_users']. ':<br />', implode(', ', $users['links']);
-	}
-	return $users;
-}
-// END MOD: AJAX Chat
-]]></add>
-		</operation>
-	</file>
-
 	<file name="$sourcedir/Subs.php">
 		<operation>
 			<search position="before"><![CDATA[
@@ -223,14 +195,8 @@ function ssi_chatOnline($output_method = 'echo')
 ]]></search>
 			<add><![CDATA[
 	// MOD: AJAX Chat - show users in chat
-	if (isset($context['chat_links']) && $context['user']['is_logged']) {
-		if (count($context['chat_links']) == 0)
-			echo '<br />' . $txt['chat_no_user'];
-		elseif (count($context['chat_links']) == 1)
-			echo '<br />  1' . $txt['chat_aUser']. ':<br />', implode($context['chat_links']);
-		else
-			echo '<br /> ' . count($context['chat_links']). $txt['chat_users']. ':<br />', implode(', ', $context['chat_links']);
-	}
+	if (isset($context['chat_links']) && $context['user']['is_logged'])
+		echo '<br />' . call_user_func($context['chat_links_txt_fn'], $context['chat_links'], ':<br />');
 	// END MOD: AJAX Chat
 ]]></add>
 		</operation>
