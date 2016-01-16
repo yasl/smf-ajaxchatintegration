@@ -79,3 +79,8 @@ New features:
 
 Bug fixes:
 - Move rollup icon to right.
+
+[color=red]3.99.2[/color]
+January 2016:
+Bug fixes:
+- Fix alignment of rollup/collapse button

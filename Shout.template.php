@@ -45,11 +45,13 @@ Sebastian Tschan
 				<h3 class="catbg" class="catbg centertext">
 					<a rel="nofollow" href="#" onclick="ajax_shoutBox_collapse(!sb_current_header)">', $txt['shoutBox'], '</a>
 					<span class="floatright">
-						<font size="1"><a href="https://blueimp.net/ajax/">AJAX Chat &copy; blueimp.net</a></font>
 						<a rel="nofollow" href="#" onclick="ajax_shoutBox_collapse(!sb_current_header)">
-							<img id="ajax_shoutbox_collapse" style="margin-right: 5px;padding:7px 0 0 5px"
+							<img id="ajax_shoutbox_collapse" style="padding:10px 5px 0 1em"
 								src="', $settings['images_url'], empty($options['sb_collapsed']) ? '/collapse.gif' : '/expand.gif','" alt="*" />
 						</a>
+					</span>
+					<span class="floatright">
+						<font size="1"><a href="https://blueimp.net/ajax/">AJAX Chat &copy; blueimp.net</a></font>
 					</span>
 				</h3>
 			</div>
