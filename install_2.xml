@@ -2,7 +2,7 @@
 <!DOCTYPE modification SYSTEM "http://www.simplemachines.org/xml/modification">
 <modification xmlns="http://www.simplemachines.org/xml/modification" xmlns:smf="http://www.simplemachines.org/">
 	<id>ShahriarGholami:AjaxChat_Integration</id>
-	<version>4.0.2</version>
+	<version>4.0.3</version>
 
 	<file name="$sourcedir/Admin.php">
 		<operation>
@@ -90,6 +90,7 @@ require_once($sourcedir . '/AJAXChatIntegration.php');
 			// MOD: AJAX Chat
 			'chat_access' => array(false, 'general', 'view_basic_info'),
 			'chat_mod' => array(false, 'general', 'view_basic_info'),
+			'chat_admin' => array(false, 'general', 'view_basic_info'),
 			'shout_view' => array(false, 'general', 'view_basic_info'),
 			'shout_access' => array(false, 'general', 'view_basic_info'),
 			'shout_mod' => array(false, 'general', 'view_basic_info'),

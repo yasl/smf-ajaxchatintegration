@@ -4,7 +4,7 @@
 <package-info xmlns="http://www.simplemachines.org/xml/package-info" xmlns:smf="http://www.simplemachines.org/">
 	<id>ShahriarGholami:AjaxChat_Integration</id>
 	<name>AjaxChat Integration</name>
-	<version>4.0.2</version>
+	<version>4.0.3</version>
 	<type>modification</type>
 
 	<install for="2.0.*">
