@@ -147,7 +147,7 @@ require_once($sourcedir . '/AJAXChatIntegration.php');
 	require_once($sourcedir . '/AJAXChatIntegration.php');
 	$num = empty($modSettings['enableChatButtonNo']) ? 0 : count(ajaxchat_getOnlineUsers());
 	$chatButton = 'Chat';
-	$chatButton .= ($num > 0) ? (' [<b>'.$num.'</b>]') : '';
+	$chatButton .= ($num > 0) ? (' [<strong>'.$num.'</strong>]') : '';
 	$chatLink = str_replace("index.php", "chat/index.php", $scripturl);
 	// END MOD: AJAX Chat
 ]]></add>
