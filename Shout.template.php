@@ -5,7 +5,8 @@ function template_shout_above(){
 
 	if (!empty($modSettings['enableShoutBox']) && allowedTo('chat_access')) {
 		echo '
-		<link rel="stylesheet" type="text/css" href="', $boardurl, '/chat/css/shoutbox.css" />';
+		<link rel="stylesheet" type="text/css" href="', $boardurl, '/chat/css/shoutbox.css" />
+		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/shout.css" />';
 		// We'll have to use the cookie to remember the shoutBox header...
 		if ($context['user']['is_guest'])
 			$options['sb_collapsed'] = !empty($_COOKIE['sb_collapsed']);

@@ -4,13 +4,14 @@
 <package-info xmlns="http://www.simplemachines.org/xml/package-info" xmlns:smf="http://www.simplemachines.org/">
 	<id>ShahriarGholami:AjaxChat_Integration</id>
 	<name>AjaxChat Integration</name>
-	<version>4.0.1</version>
+	<version>4.0.2</version>
 	<type>modification</type>
 
 	<install for="2.0.*">
 		<readme type="file" parsebbc="true">Readme.txt</readme>
 		<modification>install_2.xml</modification>
 		<require-file name="AJAXChatIntegration.php" destination="$sourcedir" />
+		<require-file name="shout.css" destination="$themedir/css" />
 		<require-file name="Shout.template.php" destination="$themedir" />
 		<require-file name="Shout.english.php" destination="$languagedir" />
 	</install>
@@ -18,6 +19,7 @@
 	<uninstall for="2.0.*">
 		<modification reverse="true">install_2.xml</modification>
 		<remove-file name="$sourcedir/AJAXChatIntegration.php" />
+		<remove-file name="$themedir/css/shout.css" />
 		<remove-file name="$themedir/Shout.template.php" />
 		<remove-file name="$languagedir/Shout.english.php" />
 	</uninstall>
